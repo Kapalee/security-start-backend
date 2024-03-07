@@ -1,9 +1,12 @@
-package dat3.rename_me.configuration;
+package dat3.security_demo.configuration;
 
 import dat3.security.entity.Role;
 import dat3.security.entity.UserWithRoles;
 import dat3.security.repository.RoleRepository;
 import dat3.security.repository.UserWithRolesRepository;
+import dat3.security_demo.entity.SpecialUser;
+import dat3.security_demo.repository.SpecialUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +34,8 @@ public class SetupDevUsers implements ApplicationRunner {
         setupAllowedRoles();
         setupUserWithRoleUsers();
     }
-
+    @Autowired
+    SpecialUserRepository specialUserRepository;
     private void setupAllowedRoles(){
         roleRepository.save(new Role("USER"));
         roleRepository.save(new Role("ADMIN"));
@@ -44,6 +48,8 @@ public class SetupDevUsers implements ApplicationRunner {
      If you see the lines below in log-outputs on Azure, forget whatever had your attention on, AND FIX THIS PROBLEM
      *****************************************************************************************/
     private void setupUserWithRoleUsers() {
+
+
         Role roleUser = roleRepository.findById("USER").orElseThrow(()-> new NoSuchElementException("Role 'user' not found"));
         Role roleAdmin = roleRepository.findById("ADMIN").orElseThrow(()-> new NoSuchElementException("Role 'admin' not found"));
         System.out.println("******************************************************************************");
@@ -66,5 +72,11 @@ public class SetupDevUsers implements ApplicationRunner {
         userWithRolesRepository.save(user2);
         userWithRolesRepository.save(user3);
         userWithRolesRepository.save(user4);
+        SpecialUser specialUser =
+                new SpecialUser("specialUser",pwEncoder.encode(passwordUsedByAll),"s@a.dk","Anders","Hansen","Lyngby vej 23","2800","Lyngby");
+        specialUser.addRole(roleUser);
+        specialUserRepository.save(specialUser);
+
     }
+
 }
